@@ -5,13 +5,39 @@ const navMenu = document.querySelector('.nav-menu');
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
+    
+    // Prevent body scroll when menu is open
+    if (navMenu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
 });
 
 // Close mobile menu when clicking on a link
 document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
     hamburger.classList.remove('active');
     navMenu.classList.remove('active');
+    document.body.style.overflow = '';
 }));
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
+// Close mobile menu on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -344,8 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Parallax effect for hero section
+// Parallax effect for hero section (desktop only)
 window.addEventListener('scroll', () => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) return;
+    
     const scrolled = window.pageYOffset;
     const hero = document.querySelector('.hero');
     const rate = scrolled * -0.5;
@@ -355,15 +384,78 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Add hover effects for interactive elements
+// Add hover effects for interactive elements (desktop only)
+function addHoverEffects() {
+    const isMobile = window.innerWidth <= 768;
+    
+    document.querySelectorAll('.feature-card, .stat-card, .contact-item').forEach(element => {
+        if (!isMobile) {
+            element.addEventListener('mouseenter', () => {
+                element.style.transform = 'translateY(-5px)';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'translateY(0)';
+            });
+        }
+    });
+}
+
+// Initialize hover effects
+addHoverEffects();
+
+// Re-initialize on window resize
+window.addEventListener('resize', () => {
+    addHoverEffects();
+});
+
+// Touch-friendly interactions for mobile
 document.querySelectorAll('.feature-card, .stat-card, .contact-item').forEach(element => {
-    element.addEventListener('mouseenter', () => {
-        element.style.transform = 'translateY(-5px)';
+    element.addEventListener('touchstart', () => {
+        if (window.innerWidth <= 768) {
+            element.style.transform = 'scale(0.98)';
+        }
     });
     
-    element.addEventListener('mouseleave', () => {
-        element.style.transform = 'translateY(0)';
+    element.addEventListener('touchend', () => {
+        if (window.innerWidth <= 768) {
+            element.style.transform = 'scale(1)';
+        }
     });
 });
+
+// Mobile-specific optimizations
+function optimizeForMobile() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Reduce animation complexity on mobile
+        document.querySelectorAll('.feature-card, .analytics-card, .stat-card').forEach(card => {
+            card.style.animationDelay = '0s';
+        });
+        
+        // Optimize touch targets
+        document.querySelectorAll('.btn, .nav-link, .time-btn').forEach(element => {
+            element.style.minHeight = '44px';
+            element.style.minWidth = '44px';
+        });
+    }
+}
+
+// Initialize mobile optimizations
+optimizeForMobile();
+
+// Re-optimize on window resize
+window.addEventListener('resize', () => {
+    optimizeForMobile();
+});
+
+// Add viewport meta tag if not present
+if (!document.querySelector('meta[name="viewport"]')) {
+    const viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    document.head.appendChild(viewport);
+}
 
 console.log('Foxyplan website loaded successfully! 🦊'); 
